@@ -13,3 +13,6 @@ class Product(models.Model):
     quantity = models.PositiveIntegerField(default=0)
     image = models.ImageField(upload_to='products_images')
     category = models.ForeignKey(to=ProductCategory, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f'Товар {self.name}, Категория {self.category}'

@@ -8,7 +8,7 @@ def login(request):
         form = UserLoginForm(data=request.POST)
         if form.is_valid():
             username = request.POST['username']
-            password = request.POSTP['password']
+            password = request.POST['password']
             user = auth.authenticate(username=username, password=password)
             if user:
                 auth.login(request, user)

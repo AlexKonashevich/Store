@@ -1,9 +1,11 @@
 from django.shortcuts import render, HttpResponseRedirect
 from users.forms import UserLoginForm, UserRegistrationForm, UserProfileForm
 from django.contrib import auth, messages
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from products.models import Basket
 from django.contrib.auth.decorators import login_required
+from django.views.generic.edit import CreateView
+from users.models import User
 
 
 def login(request):
@@ -21,6 +23,12 @@ def login(request):
     context = {'form': form}
     return render(request, 'users/login.html', context)
 
+
+class UserRegistrationView(CreateView):
+    model = User
+    form_class = UserRegistrationForm
+    template_name = 'users/register.html'
+    success_url = reverse_lazy('users:login')
 
 def register(request):
     if request.method == 'POST':

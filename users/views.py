@@ -9,6 +9,7 @@ from common.views import TitleMixin
 from users.models import User, EmailVerification
 from products.models import Basket
 
+
 class UserLoginView(TitleMixin, LoginView):
     template_name = 'users/login.html'
     form_class = UserLoginForm
@@ -48,6 +49,6 @@ class EmailVerificationView(TitleMixin, TemplateView):
         if email_verifications.exists() and not email_verifications.first().is_expired():
             user.is_verified = True
             user.save()
-            return super(EmailVerificationView,self).get(request, *args, **kwargs)
+            return super(EmailVerificationView, self).get(request, *args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('index'))

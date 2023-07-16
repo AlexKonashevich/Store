@@ -9,13 +9,15 @@ from django.utils.timezone import now
 class User(AbstractUser):
     image = models.ImageField(upload_to='users_images', null=True, blank=True)
     is_verified = models.BooleanField(default=False)
+    email = models.EmailField(unique=True, blank=False)
 
 
 class EmailVerification(models.Model):
     code = models.UUIDField(unique=True)
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
-    expiration = models.DateTimeField()
+    expiration = models.DateTimeField(default=None)
+
 
     def __str__(self):
         return f'EmailVerification object for {self.user.email}'
@@ -31,7 +33,7 @@ class EmailVerification(models.Model):
         send_mail(
             subject=subject,
             message=message,
-            from_email='from@example.com',
+            from_email=settings.EMAIL_HOST_USER,
             recipient_list=[self.user.email],
             fail_silently=False
         )

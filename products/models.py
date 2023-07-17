@@ -1,4 +1,5 @@
 from django.db import models
+
 from users.models import User
 
 
@@ -12,6 +13,8 @@ class ProductCategory(models.Model):
     class Meta:
         verbose_name = 'category'
         verbose_name_plural = 'categories'
+
+
 class Product(models.Model):
     name = models.CharField(max_length=264, unique=True)
     description = models.TextField()
@@ -23,6 +26,7 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'product'
         verbose_name_plural = 'products'
+
     def __str__(self):
         return f'Товар {self.name}, Категория {self.category}'
 

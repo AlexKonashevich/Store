@@ -1,8 +1,8 @@
+from django.conf import settings
+from django.contrib.auth.models import AbstractUser
+from django.core.mail import send_mail
 from django.db import models
 from django.urls import reverse
-from django.contrib.auth.models import AbstractUser
-from django.conf import settings
-from django.core.mail import send_mail
 from django.utils.timezone import now
 
 
@@ -17,7 +17,6 @@ class EmailVerification(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     expiration = models.DateTimeField(default=None)
-
 
     def __str__(self):
         return f'EmailVerification object for {self.user.email}'

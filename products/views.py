@@ -18,6 +18,7 @@ class ProductsListView(TitleMixin, ListView):
     model = Product
     template_name = 'products/products.html'
     paginate_by = 3
+    context_object_name = "products"
     title = 'Store - Каталог'
 
     def get_queryset(self):
@@ -25,9 +26,10 @@ class ProductsListView(TitleMixin, ListView):
         category_id = self.kwargs.get('category_id')
         return queryset.filter(category_id=category_id) if category_id else queryset
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super(ProductsListView, self).get_context_data()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         context['categories'] = ProductCategory.objects.all()
+        context['category_id'] = self.kwargs.get('category_id')
         return context
 
 

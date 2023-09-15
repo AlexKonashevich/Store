@@ -17,7 +17,7 @@ class IndexView(TitleMixin, TemplateView):
 class ProductsListView(TitleMixin, ListView):
     model = Product
     template_name = 'products/products.html'
-    paginate_by = 3
+    paginate_by = 12
     context_object_name = 'products'
     title = 'Store - Каталог'
 
@@ -55,26 +55,3 @@ def basket_remove(request, basket_id):
     basket.delete()
 
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
-
-
-# def index(request):
-#     context = {
-#         'title': 'Магазин',
-#     }
-#     return render(request, 'products/index.html', context)
-
-
-# def products(request, category_id=None, page_number=1):
-#
-#     products = Product.objects.filter(category_id=category_id) if category_id else Product.objects.all()
-#
-#     per_page = 3
-#     paginator = Paginator(products, per_page)
-#     products_paginator = paginator.page(page_number)
-#
-#     context = {
-#         'title': 'Каталог',
-#         'products': products_paginator,
-#         'categories': ProductCategory.objects.all(),
-#     }
-#     return render(request, 'products/products.html', context)

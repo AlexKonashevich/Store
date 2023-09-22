@@ -16,7 +16,7 @@ class ProductCategory(models.Model):
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=264, unique=True)
+    name = models.CharField(max_length=256, unique=True)
     description = models.TextField()
     price = models.DecimalField(max_digits=7, decimal_places=2)
     quantity = models.PositiveIntegerField(default=0)

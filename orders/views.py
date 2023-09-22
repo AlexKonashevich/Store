@@ -7,6 +7,7 @@ from Store import settings
 from common.views import TitleMixin
 from django.views.generic.base import TemplateView, HttpResponseRedirect
 from orders.forms import OrdersForm
+
 import uuid
 from yookassa import Payment
 
@@ -33,8 +34,10 @@ class OrderCreateView(CreateView, TitleMixin):
         super(OrderCreateView, self).post(request, *args, **kwargs)
         baskets = Basket.objects.filter(user=self.request.user)
         total_price = 0
+        goods = ''
         for basket in baskets:
             total_price += (basket.product.price * basket.product.quantity)
+            goods += basket.product.name + '/n'
         payment = Payment.create({
             "amount": {
                 "value": str(total_price),
@@ -44,8 +47,12 @@ class OrderCreateView(CreateView, TitleMixin):
                 "type": "redirect",
                 "return_url": "{}{}".format(settings.DOMAIN_NAME, reverse("orders:order_success"))
             },
+            "metadata": {
+                "user": self.request.user.username,
+                "goods": goods
+            },
             "capture": True,
-            "description": f"Заказ №1"
+            "description": f"Заказ №{self.object.id}"
 
         }, uuid.uuid4())
         return HttpResponseRedirect(payment.confirmation.confirmation_url, status=HTTPStatus.SEE_OTHER)

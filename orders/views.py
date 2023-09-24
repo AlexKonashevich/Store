@@ -2,12 +2,14 @@ from http import HTTPStatus
 
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy, reverse
+from decimal import Decimal
 
+import orders.models
 from Store import settings
 from common.views import TitleMixin
 from django.views.generic.base import TemplateView, HttpResponseRedirect
 from orders.forms import OrdersForm
-
+from orders.models import Order
 import uuid
 from yookassa import Payment
 
@@ -32,12 +34,13 @@ class OrderCreateView(CreateView, TitleMixin):
 
     def post(self, request, *args, **kwargs):
         super(OrderCreateView, self).post(request, *args, **kwargs)
+        order_id = uuid.uuid4()
         baskets = Basket.objects.filter(user=self.request.user)
-        total_price = 0
+        total_price = Decimal(0)
         goods = ''
         for basket in baskets:
-            total_price += (basket.product.price * basket.product.quantity)
-            goods += basket.product.name + '/n'
+            total_price += Decimal(basket.product.price) * Decimal(basket.quantity)
+            goods += f'{basket.product.name} Количество: {basket.quantity}\n'
         payment = Payment.create({
             "amount": {
                 "value": str(total_price),
@@ -52,9 +55,9 @@ class OrderCreateView(CreateView, TitleMixin):
                 "goods": goods
             },
             "capture": True,
-            "description": f"Заказ №{self.object.id}"
+            "description": f"Заказ №{order_id}"
 
-        }, uuid.uuid4())
+        }, order_id)
         return HttpResponseRedirect(payment.confirmation.confirmation_url, status=HTTPStatus.SEE_OTHER)
 
     def form_valid(self, form):

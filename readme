@@ -1,2 +1,3 @@
 start redis on ubuntu lts: sudo service redis-server start
 start celery on terminal: celery -A Store worker -l INFO -P solo
+start ngrok: ngrok http 8000

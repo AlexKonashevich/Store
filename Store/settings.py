@@ -203,3 +203,4 @@ CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
 
 Configuration.account_id = '251709'
 Configuration.secret_key = 'test__xK6D6VegG4iRc6cFTNG6PZ0J66wl9j1ma85_S-ywCU'
+Configuration.configure_auth_token = 1

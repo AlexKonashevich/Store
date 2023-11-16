@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-66t+8bf%6q0m7)l!zrxsfl=x$@_99!)5toa+n$j%8ac7)9#4t9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['http://127.0.0.1:8000', '127.0.0.1', '349c-2a03-d000-5115-e98-dcab-526-29b4-e187.ngrok-free.app']
 
 DOMAIN_NAME = 'http://127.0.0.1:8000'
 
@@ -203,4 +203,3 @@ CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
 
 Configuration.account_id = '251709'
 Configuration.secret_key = 'test__xK6D6VegG4iRc6cFTNG6PZ0J66wl9j1ma85_S-ywCU'
-Configuration.configure_auth_token = 1

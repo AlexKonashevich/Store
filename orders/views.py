@@ -56,17 +56,7 @@ class OrderCreateView(CreateView, TitleMixin):
         baskets = Basket.objects.filter(user=self.request.user)
         total_price = Decimal(0)
         goods = ''
-        orders = []
-        # Order.objects.filter(id=self)
-
-        order = '123'
-        print(self.request.session.values())
-        for i in orders:
-            print(i.status)
-            if i.status == 0:
-                order = i
-        print(order)
-        order_id = 0
+        order_id = self.object.id
         for basket in baskets:
             total_price += Decimal(basket.product.price) * Decimal(basket.quantity)
             goods += f'{basket.product.name} Количество: {basket.quantity}\n'

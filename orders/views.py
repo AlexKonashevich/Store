@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from yookassa import Configuration
 from yookassa.domain.notification import WebhookNotificationEventType, WebhookNotificationFactory
 from yookassa.domain.common import SecurityHelper
+
 from Store import settings
 from common.views import TitleMixin
 from django.views.generic.base import TemplateView, HttpResponseRedirect
@@ -18,6 +19,7 @@ import uuid
 from yookassa import Payment
 
 from products.models import Basket
+from orders.models import Order
 
 
 class SuccessTemplateView(TitleMixin, TemplateView):
@@ -36,12 +38,35 @@ class OrderCreateView(CreateView, TitleMixin):
     success_url = reverse_lazy('orders:order_create')
     title = 'Store - Оформление заказа'
 
+    def form_valid(self, form):
+        form.instance.initiator = self.request.user
+        return super(OrderCreateView, self).form_valid(form)
+
+    def save_to_db(self, request):
+        if request.method == "POST":
+            first_name = request.POST['first_name']
+            last_name = request.POST['last_name']
+            email = request.POST['email']
+            address = request.POST['address']
+            data = OrdersForm(first_name=first_name, last_name=last_name, email=email, address=address)
+            data.save()
+
     def post(self, request, *args, **kwargs):
         super(OrderCreateView, self).post(request, *args, **kwargs)
-        order_id = uuid.uuid4()
         baskets = Basket.objects.filter(user=self.request.user)
         total_price = Decimal(0)
         goods = ''
+        orders = []
+        # Order.objects.filter(id=self)
+
+        order = '123'
+        print(self.request.session.values())
+        for i in orders:
+            print(i.status)
+            if i.status == 0:
+                order = i
+        print(order)
+        order_id = 0
         for basket in baskets:
             total_price += Decimal(basket.product.price) * Decimal(basket.quantity)
             goods += f'{basket.product.name} Количество: {basket.quantity}\n'
@@ -55,19 +80,15 @@ class OrderCreateView(CreateView, TitleMixin):
                 "return_url": "{}{}".format(settings.DOMAIN_NAME, reverse("orders:order_success"))
             },
             "metadata": {
+                "order_id": str(order_id),
                 "user": self.request.user.username,
                 "goods": goods
             },
             "capture": True,
-            "description": f"Заказ №{order_id}"
+            "description": f"Заказ № {order_id}"
 
         }, order_id)
         return HttpResponseRedirect(payment.confirmation.confirmation_url, status=HTTPStatus.SEE_OTHER)
-
-    def form_valid(self, form):
-        form.instance.initiator = self.request.user
-        return super(OrderCreateView, self).form_valid(form)
-
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -83,7 +104,7 @@ def yookassa_webhook(request):
     # Если хотите убедиться, что запрос пришел от ЮКасса, добавьте проверку:
     ip = get_client_ip(request)  # Получите IP запроса
     if not SecurityHelper().is_ip_trusted(ip):
-        return HttpResponse(status=400)
+        return HttpResponse(status=401)
 
     # Извлечение JSON объекта из тела запроса
     payload = request.body.decode('utf-8')
@@ -97,8 +118,9 @@ def yookassa_webhook(request):
                 'paymentId': response_object.id,
                 'paymentStatus': response_object.status,
             }
-            # Специфичная логика
-            # ...
+            order_id = event_json.metadata.order_id
+            order = Order.objects.get(id=str(order_id))
+            order.update_after_payment()
         elif notification_object.event == WebhookNotificationEventType.PAYMENT_WAITING_FOR_CAPTURE:
             some_data = {
                 'paymentId': response_object.id,
@@ -115,7 +137,7 @@ def yookassa_webhook(request):
             # ...
         else:
             # Обработка ошибок
-            return HttpResponse(status=400)  # Сообщаем кассе об ошибке
+            return HttpResponse(status=402)  # Сообщаем кассе об ошибке
 
         # Специфичная логика
         # ...
@@ -128,10 +150,10 @@ def yookassa_webhook(request):
             print('paymentStatus', payment_status)
         else:
             # Обработка ошибок
-            return HttpResponse(status=400)  # Сообщаем кассе об ошибке
+            return HttpResponse(status=403)  # Сообщаем кассе об ошибке
 
     except Exception:
         # Обработка ошибок
-        return HttpResponse(status=400)  # Сообщаем кассе об ошибке
+        return HttpResponse(status=404)  # Сообщаем кассе об ошибке
 
     return HttpResponse(status=200)  # Сообщаем кассе, что все хорошо

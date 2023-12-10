@@ -40,7 +40,7 @@
                                     <label for="{{ form.first_name.id_for_label }}" class="form-label">Имя</label>
 {#                                        {{ form.first_name }}#}
                                     <p><label>
-                                        <input required name="textfield" type="text" value="{{ user.first_name }}" size="30">
+                                        <input required name="first_name" type="text" value="{{ user.first_name }}" size="30">
                                     </label></p>
                                 </div>
 
@@ -48,7 +48,7 @@
                                     <label for="{{ form.last_name.id_for_label }}" class="form-label">Фамилия</label>
 {#                                        {{ form.last_name }}#}
                                     <p><label>
-                                        <input required name="textfield" type="text" value="{{ user.last_name }}" size="30">
+                                        <input required name="last_name" type="text" value="{{ user.last_name }}" size="30">
                                     </label></p>
                                 </div>
 
@@ -56,15 +56,15 @@
                                     <label for="{{ form.email.id_for_label }}" class="form-label">Адрес электронной почты</label>
 {#                                        {{ form.email }}#}
                                     <p><label>
-                                        <input required name="textfield" type="text" value="{{ user.email }}" size="30">
+                                        <input required name="email" type="text" value="{{ user.email }}" size="30">
                                     </label></p>
                                 </div>
 
                                 <div class="col-12 mt-3">
                                     <label for="{{ form.email.address }}" class="form-label">Адрес</label>
-{#                                        {{ form.address }}#}
+{#                                        {{ form.address  }}#}
                                     <p><label>
-                                        <input required name="textfield" type="text" value="{{ user.address }}" size="80">
+                                        <input required name="address" type="text" value="{{ user.address }}" size="80">
                                     </label></p>
                                 </div>
 

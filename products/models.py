@@ -21,7 +21,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=7, decimal_places=2)
     quantity = models.PositiveIntegerField(default=0)
     image = models.ImageField(upload_to='products_images')
-    category = models.ForeignKey(to=ProductCategory, on_delete=models.PROTECT)
+    category = models.ForeignKey(to=ProductCategory, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'product'
@@ -52,3 +52,12 @@ class Basket(models.Model):
 
     def sum(self):
         return self.product.price * self.quantity
+
+    def de_json(self):
+        basket_item = {
+            'product_name': self.product.name,
+            'quantity': self.quantity,
+            'price': float(self.product.price),
+            'sum': float(self.sum())
+        }
+        return basket_item

@@ -5,6 +5,7 @@ from django.urls import reverse_lazy, reverse
 from decimal import Decimal
 
 import json
+import jmespath
 from django.http import HttpResponse
 from yookassa import Configuration
 from yookassa.domain.notification import WebhookNotificationEventType, WebhookNotificationFactory
@@ -15,7 +16,7 @@ from common.views import TitleMixin
 from django.views.generic.base import TemplateView, HttpResponseRedirect
 from orders.forms import OrdersForm
 from django.views.decorators.csrf import csrf_exempt
-import uuid
+
 from yookassa import Payment
 
 from products.models import Basket
@@ -42,7 +43,8 @@ class OrderCreateView(CreateView, TitleMixin):
         form.instance.initiator = self.request.user
         return super(OrderCreateView, self).form_valid(form)
 
-    def save_to_db(self, request):
+    @staticmethod
+    def save_to_db(request):
         if request.method == "POST":
             first_name = request.POST['first_name']
             last_name = request.POST['last_name']
@@ -99,6 +101,7 @@ def yookassa_webhook(request):
     # Извлечение JSON объекта из тела запроса
     payload = request.body.decode('utf-8')
     event_json = json.loads(payload)
+    order_id = jmespath.search('object.metadata.order_id', event_json)
     try:
         # Создание объекта класса уведомлений в зависимости от события
         notification_object = WebhookNotificationFactory().create(event_json)
@@ -108,8 +111,7 @@ def yookassa_webhook(request):
                 'paymentId': response_object.id,
                 'paymentStatus': response_object.status,
             }
-            order_id = event_json.metadata.order_id
-            order = Order.objects.get(id=str(order_id))
+            order = Order.objects.get(id=int(order_id))
             order.update_after_payment()
         elif notification_object.event == WebhookNotificationEventType.PAYMENT_WAITING_FOR_CAPTURE:
             some_data = {

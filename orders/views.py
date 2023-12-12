@@ -14,6 +14,7 @@ from yookassa.domain.common import SecurityHelper
 from Store import settings
 from common.views import TitleMixin
 from django.views.generic.base import TemplateView, HttpResponseRedirect
+from django.views.generic.list import ListView
 from orders.forms import OrdersForm
 from django.views.decorators.csrf import csrf_exempt
 
@@ -31,6 +32,17 @@ class SuccessTemplateView(TitleMixin, TemplateView):
 class CanceledTemplateView(TitleMixin, TemplateView):
     template_name = 'orders/cancel.html'
     title = 'Store - Заказ не оплачен.'
+
+
+class OrderListView(TitleMixin, ListView):
+    template_name = 'orders/orders.html'
+    title = 'Store - Заказы'
+    queryset = Order.objects.all()
+    ordering = ('-created')
+
+    def get_queryset(self):
+        queryset = super(OrderListView, self).get_queryset()
+        return queryset.filter(initiator=self.request.user)
 
 
 class OrderCreateView(CreateView, TitleMixin):

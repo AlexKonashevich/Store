@@ -1,7 +1,7 @@
 from django import forms
+from django.views.generic.base import TemplateView
 
 from orders.models import Order
-from django.views.generic.base import TemplateView
 
 
 class OrdersForm(forms.ModelForm, TemplateView):

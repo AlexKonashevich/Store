@@ -51,7 +51,6 @@ class UserRegistrationViewTestCase(TestCase):
         self.assertEquals(response.status_code, HTTPStatus.OK)
         self.assertContains(response, 'Пользователь с таким именем уже существует.', html=True)
 
-
     def test_user_login_get(self):
         response = self.client.get(self.path)
 

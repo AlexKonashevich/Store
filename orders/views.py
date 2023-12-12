@@ -1,27 +1,25 @@
+import json
+from decimal import Decimal
 from http import HTTPStatus
 
-from django.views.generic.edit import CreateView
-from django.urls import reverse_lazy, reverse
-from decimal import Decimal
-
-import json
 import jmespath
 from django.http import HttpResponse
-from yookassa import Configuration
-from yookassa.domain.notification import WebhookNotificationEventType, WebhookNotificationFactory
-from yookassa.domain.common import SecurityHelper
-
-from Store import settings
-from common.views import TitleMixin
-from django.views.generic.base import TemplateView, HttpResponseRedirect
-from django.views.generic.list import ListView
-from orders.forms import OrdersForm
+from django.urls import reverse, reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic.base import HttpResponseRedirect, TemplateView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView
+from django.views.generic.list import ListView
+from yookassa import Configuration, Payment
+from yookassa.domain.common import SecurityHelper
+from yookassa.domain.notification import (WebhookNotificationEventType,
+                                          WebhookNotificationFactory)
 
-from yookassa import Payment
-
-from products.models import Basket
+from common.views import TitleMixin
+from orders.forms import OrdersForm
 from orders.models import Order
+from products.models import Basket
+from Store import settings
 
 
 class SuccessTemplateView(TitleMixin, TemplateView):
@@ -43,6 +41,16 @@ class OrderListView(TitleMixin, ListView):
     def get_queryset(self):
         queryset = super(OrderListView, self).get_queryset()
         return queryset.filter(initiator=self.request.user)
+
+
+class OrderDetailView(DetailView):
+    template_name = 'orders/order.html'
+    model = Order
+
+    def get_context_data(self, **kwargs):
+        context = super(OrderDetailView, self).get_context_data(**kwargs)
+        context['title'] = f'Store - Заказ №{self.object.id}'
+        return context
 
 
 class OrderCreateView(CreateView, TitleMixin):
@@ -93,6 +101,7 @@ class OrderCreateView(CreateView, TitleMixin):
 
         }, order_id)
         return HttpResponseRedirect(payment.confirmation.confirmation_url, status=HTTPStatus.SEE_OTHER)
+
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
